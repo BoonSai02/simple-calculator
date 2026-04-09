@@ -13,34 +13,54 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Backend Image') {
             steps {
-                sh 'docker build -t calculator-app .'
+                sh 'docker build -t calculator-backend .'
+            }
+        }
+
+        stage('Build Frontend Image') {
+            steps {
+                sh 'docker build -t calculator-frontend ./frontend'
             }
         }
 
         stage('Stop Old Containers') {
             steps {
-                // Remove all possible conflicting containers
-                sh 'docker rm -f calculator-container || true'
                 sh 'docker rm -f backend || true'
                 sh 'docker rm -f frontend || true'
+                sh 'docker rm -f calculator-container || true'
             }
         }
 
-        stage('Run Container') {
+        stage('Create Network') {
             steps {
-                sh 'docker run -d -p 8000:8000 --name calculator-container calculator-app'
+                sh 'docker network create calculator-network || true'
             }
         }
 
-        stage('Show Logs') {
+        stage('Run Backend Container') {
             steps {
-                // wait for app to start
+                sh 'docker run -d -p 8000:8000 --name backend --network calculator-network calculator-backend'
+            }
+        }
+
+        stage('Run Frontend Container') {
+            steps {
+                sh 'docker run -d -p 3000:80 --name frontend --network calculator-network calculator-frontend'
+            }
+        }
+
+        stage('Show Backend Logs') {
+            steps {
                 sh 'sleep 5'
-                
-                // print logs in Jenkins console
-                sh 'docker logs calculator-container'
+                sh 'docker logs backend'
+            }
+        }
+
+        stage('Show Frontend Logs') {
+            steps {
+                sh 'docker logs frontend'
             }
         }
     }
