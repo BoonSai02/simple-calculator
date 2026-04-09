@@ -6,15 +6,25 @@ pipeline {
     }
 
     stages {
+
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t calculator-app .'
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Stop Old Containers') {
             steps {
+                // Remove all possible conflicting containers
                 sh 'docker rm -f calculator-container || true'
+                sh 'docker rm -f backend || true'
+                sh 'docker rm -f frontend || true'
             }
         }
 
@@ -26,7 +36,10 @@ pipeline {
 
         stage('Show Logs') {
             steps {
+                // wait for app to start
                 sh 'sleep 5'
+                
+                // print logs in Jenkins console
                 sh 'docker logs calculator-container'
             }
         }
