@@ -23,5 +23,12 @@ pipeline {
                 sh 'docker run -d -p 8000:8000 --name calculator-container calculator-app'
             }
         }
+
+        stage('Show Logs') {
+            steps {
+                sh 'sleep 5'
+                sh 'docker logs calculator-container'
+            }
+        }
     }
 }
