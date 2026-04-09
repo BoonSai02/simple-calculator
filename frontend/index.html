@@ -17,25 +17,26 @@
         <option value="pow">Power</option>
     </select>
 
-    <button onclick="calculator()">Calculator</button>
+    <button onclick="calculator()">Calculate</button>
     <h3 id="result"></h3>
 
     <script>
         async function calculator() {
             let a = document.getElementById("a").value;
             let b = document.getElementById("b").value;
-            let op = document.getElementById("c").value;
-            
-            let res = await fetch(`http://127.0.0.1:8000/${op}`,{
+            let op = document.getElementById("op").value;
+
+            let res = await fetch(`http://backend:8000/${op}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    a: Number(a), b: Number(b)
+                    a: Number(a), 
+                    b: Number(b)
                 })
             });
 
             let data = await res.json();
-            document.getElementById("result").innerTest = data.result || data.console.error;
+            document.getElementById("result").innerText = data.result;
         }
     </script>
 
