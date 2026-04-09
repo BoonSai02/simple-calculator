@@ -2,22 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Setup Python & UV') {
+        stage('Build Docker Image') {
             steps {
-                sh 'python3 -m venv venv'
-                sh './venv/bin/pip install uv'
+                sh 'docker build -t calculator-app .'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Stop Old Container') {
             steps {
-                sh './venv/bin/uv pip install -e backend'
+                sh 'docker stop calc-container || true'
+                sh 'docker rm calc-container || true'
             }
         }
 
-        stage('Run Server') {
+        stage('Run Container') {
             steps {
-                sh './venv/bin/uvicorn backend.app:app --host 0.0.0.0 --port 8000 &'
+                sh 'docker run -d -p 8000:8000 --name calc-container calculator-app'
             }
         }
     }
